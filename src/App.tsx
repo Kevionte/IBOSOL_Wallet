@@ -16,14 +16,20 @@ function MainContent() {
     return <UnlockWallet />;
   }
 
-  return <Dashboard />;
+  return (
+    <>
+      <Dashboard />
+    </>
+  );
 }
 
 export default function App() {
   return (
-    <WalletProvider>
-      <MainContent />
-      <Toaster position="top-right" />
-    </WalletProvider>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <WalletProvider>
+        <MainContent />
+        <Toaster position="top-right" richColors />
+      </WalletProvider>
+    </div>
   );
 }

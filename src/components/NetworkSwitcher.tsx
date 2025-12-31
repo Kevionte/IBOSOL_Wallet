@@ -96,46 +96,46 @@ export function NetworkSwitcher() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="h-9 bg-white hover:bg-gray-50 border-gray-300 shadow-sm">
+          <Button variant="outline" size="sm" className="h-10 bg-gradient-to-r from-white to-gray-50 hover:from-gray-50 hover:to-gray-100 border-2 border-gray-200 rounded-xl px-4 shadow-sm hover:shadow-md transition-all duration-200">
             <div className="flex items-center gap-2">
-              <div className="size-2 bg-green-500 rounded-full"></div>
-              <span className="hidden sm:inline font-medium">{currentNetwork.name}</span>
-              <span className="sm:hidden font-medium">{currentNetwork.symbol}</span>
-              <ChevronDown className="size-4 text-gray-500" />
+              <div className="size-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full shadow-sm"></div>
+              <span className="hidden sm:inline font-medium text-gray-800">{currentNetwork.name}</span>
+              <span className="sm:hidden font-medium text-gray-800">{currentNetwork.symbol}</span>
+              <ChevronDown className="size-4 text-gray-600" />
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80 mt-2 shadow-lg rounded-xl border-gray-200">
-          <DropdownMenuLabel className="flex items-center gap-2 py-2">
+        <DropdownMenuContent align="end" className="w-72 mt-2 rounded-2xl border-0 shadow-2xl bg-gradient-to-b from-white to-gray-50">
+          <DropdownMenuLabel className="flex items-center gap-2 py-3 px-4 text-sm border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-2xl">
             <Globe className="size-4 text-indigo-600" />
-            <span className="font-semibold text-gray-900">Select Network</span>
+            <span className="font-medium text-gray-800">Select Network</span>
           </DropdownMenuLabel>
           {networks.map((network) => (
             <DropdownMenuItem
               key={network.chainId}
               onClick={() => switchNetwork(network.chainId)}
-              className="cursor-pointer py-3 px-2 hover:bg-gray-50 rounded-lg mx-1"
+              className="cursor-pointer py-3 px-4 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 rounded-xl mx-2 my-1 transition-all duration-200 border border-transparent hover:border-indigo-100"
             >
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-3">
-                  <div className={`size-3 rounded-full ${
-                    network.chainId === currentNetwork.chainId ? 'bg-green-500' : 'bg-gray-300'
+                  <div className={`size-3 rounded-full shadow-sm ${
+                    network.chainId === currentNetwork.chainId ? 'bg-gradient-to-br from-green-500 to-emerald-500' : 'bg-gradient-to-br from-gray-400 to-gray-500'
                   }`}></div>
                   <div>
                     <div className="text-sm font-medium text-gray-900">{network.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 mt-0.5">
                       Chain ID: {network.chainId}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
                   {network.chainId === currentNetwork.chainId && (
-                    <Check className="size-5 text-indigo-600" />
+                    <Check className="size-4 text-indigo-600" />
                   )}
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full ml-2"
+                    className="h-8 w-8 p-0 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                     onClick={(e:any) => {
                       e.stopPropagation();
                       showNetworkDetailsModal(network);
@@ -147,23 +147,27 @@ export function NetworkSwitcher() {
               </div>
             </DropdownMenuItem>
           ))}
-          <DropdownMenuSeparator className="my-1" />
+          <DropdownMenuSeparator className="my-2 bg-gradient-to-r from-gray-200 to-gray-300" />
           <DropdownMenuItem 
             onClick={() => setShowAddNetwork(true)}
-            className="py-2 cursor-pointer hover:bg-gray-50 rounded-lg mx-1"
+            className="py-3 cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl mx-2 mb-1 transition-all duration-200 flex items-center border border-transparent hover:border-blue-200 shadow-sm hover:shadow-md"
           >
-            <Plus className="size-4 mr-2 text-indigo-600" />
-            <span>Add Network</span>
+            <div className="size-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 shadow-sm">
+              <Plus className="size-4 text-white" />
+            </div>
+            <span className="font-medium text-gray-800">Add Network</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       {/* Add Network Dialog */}
       <Dialog open={showAddNetwork} onOpenChange={setShowAddNetwork}>
-        <DialogContent className="sm:max-w-md rounded-xl">
+        <DialogContent className="sm:max-w-lg rounded-2xl shadow-2xl border-0 bg-gradient-to-b from-white to-gray-50">
           <DialogHeader>
-            <DialogTitle className="text-xl">Add Network</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Add Network
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
               Add a new network to your wallet
             </DialogDescription>
           </DialogHeader>
@@ -175,7 +179,7 @@ export function NetworkSwitcher() {
                 value={newNetwork.name}
                 onChange={(e) => setNewNetwork({...newNetwork, name: e.target.value})}
                 placeholder="e.g. Ethereum Mainnet"
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
               />
             </div>
             <div className="space-y-2">
@@ -186,7 +190,7 @@ export function NetworkSwitcher() {
                 value={newNetwork.chainId}
                 onChange={(e) => setNewNetwork({...newNetwork, chainId: e.target.value})}
                 placeholder="e.g. 1"
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
               />
             </div>
             <div className="space-y-2">
@@ -196,7 +200,7 @@ export function NetworkSwitcher() {
                 value={newNetwork.rpcUrl}
                 onChange={(e) => setNewNetwork({...newNetwork, rpcUrl: e.target.value})}
                 placeholder="e.g. https://mainnet.infura.io/v3/..."
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -207,7 +211,7 @@ export function NetworkSwitcher() {
                   value={newNetwork.symbol}
                   onChange={(e) => setNewNetwork({...newNetwork, symbol: e.target.value})}
                   placeholder="e.g. ETH"
-                  className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -218,7 +222,7 @@ export function NetworkSwitcher() {
                   value={newNetwork.decimals}
                   onChange={(e) => setNewNetwork({...newNetwork, decimals: e.target.value})}
                   placeholder="18"
-                  className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
                 />
               </div>
             </div>
@@ -229,17 +233,17 @@ export function NetworkSwitcher() {
                 value={newNetwork.explorerUrl}
                 onChange={(e) => setNewNetwork({...newNetwork, explorerUrl: e.target.value})}
                 placeholder="e.g. https://etherscan.io"
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
               />
             </div>
             <div className="flex gap-3 pt-2">
-              <Button onClick={handleAddNetwork} className="flex-1">
+              <Button onClick={handleAddNetwork} className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl h-11 shadow-md hover:shadow-lg transition-all duration-200">
                 Add Network
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowAddNetwork(false)}
-                className="flex-1"
+                className="flex-1 rounded-xl h-11 shadow-sm hover:shadow-md transition-all duration-200 border-2"
               >
                 Cancel
               </Button>
@@ -250,10 +254,12 @@ export function NetworkSwitcher() {
 
       {/* Network Details Dialog */}
       <Dialog open={showNetworkDetails} onOpenChange={setShowNetworkDetails}>
-        <DialogContent className="sm:max-w-md rounded-xl">
+        <DialogContent className="sm:max-w-lg rounded-2xl shadow-2xl border-0 bg-gradient-to-b from-white to-gray-50">
           <DialogHeader>
-            <DialogTitle className="text-xl">{selectedNetworkForDetails?.name}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              {selectedNetworkForDetails?.name}
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
               Network details and settings
             </DialogDescription>
           </DialogHeader>
@@ -261,29 +267,29 @@ export function NetworkSwitcher() {
           {selectedNetworkForDetails && (
             <div className="space-y-4">
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">Network Name</span>
-                  <span className="font-medium">{selectedNetworkForDetails.name}</span>
+                <div className="flex justify-between py-3 border-b border-gray-200 bg-gray-50 rounded-lg px-3">
+                  <span className="text-gray-600 font-medium">Network Name</span>
+                  <span className="font-medium text-gray-800">{selectedNetworkForDetails.name}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">Chain ID</span>
-                  <span className="font-medium">{selectedNetworkForDetails.chainId}</span>
+                <div className="flex justify-between py-3 border-b border-gray-200 bg-gray-50 rounded-lg px-3">
+                  <span className="text-gray-600 font-medium">Chain ID</span>
+                  <span className="font-medium text-gray-800">{selectedNetworkForDetails.chainId}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">Currency Symbol</span>
-                  <span className="font-medium">{selectedNetworkForDetails.symbol}</span>
+                <div className="flex justify-between py-3 border-b border-gray-200 bg-gray-50 rounded-lg px-3">
+                  <span className="text-gray-600 font-medium">Currency Symbol</span>
+                  <span className="font-medium text-gray-800">{selectedNetworkForDetails.symbol}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">Decimals</span>
-                  <span className="font-medium">{selectedNetworkForDetails.decimals}</span>
+                <div className="flex justify-between py-3 border-b border-gray-200 bg-gray-50 rounded-lg px-3">
+                  <span className="text-gray-600 font-medium">Decimals</span>
+                  <span className="font-medium text-gray-800">{selectedNetworkForDetails.decimals}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">RPC URL</span>
-                  <span className="font-medium text-sm text-right break-all">{selectedNetworkForDetails.rpcUrl}</span>
+                <div className="flex justify-between py-3 border-b border-gray-200 bg-gray-50 rounded-lg px-3">
+                  <span className="text-gray-600 font-medium">RPC URL</span>
+                  <span className="font-medium text-sm text-right break-all text-gray-800">{selectedNetworkForDetails.rpcUrl}</span>
                 </div>
                 {selectedNetworkForDetails.explorerUrl && (
-                  <div className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="text-gray-500">Block Explorer</span>
+                  <div className="flex justify-between py-3 border-b border-gray-200 bg-gray-50 rounded-lg px-3">
+                    <span className="text-gray-600 font-medium">Block Explorer</span>
                     <a 
                       href={selectedNetworkForDetails.explorerUrl} 
                       target="_blank" 
@@ -303,7 +309,7 @@ export function NetworkSwitcher() {
                     handleRemoveNetwork(selectedNetworkForDetails.chainId);
                     setShowNetworkDetails(false);
                   }}
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white rounded-xl h-11 shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <Trash2 className="size-4 mr-2" />
                   Remove Network

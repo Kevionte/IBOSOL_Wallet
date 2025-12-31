@@ -213,7 +213,7 @@ export function SendModal({ open, onClose, token }: SendModalProps) {
         if (!isOpen) handleClose();
       }}
     >
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border-0 bg-gradient-to-b from-white to-gray-50">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {token ? (
@@ -229,30 +229,30 @@ export function SendModal({ open, onClose, token }: SendModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex border rounded-lg mb-4">
+        <div className="flex border-2 rounded-xl mb-6 bg-gradient-to-r from-gray-50 to-gray-100 p-1.5 shadow-inner">
           <button
-            className={`flex-1 py-2 px-4 text-center rounded-l-lg transition-colors ${
+            className={`flex-1 py-3 px-4 text-center rounded-lg transition-all duration-200 ${
               activeTab === "send"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200"
+                ? "bg-white text-indigo-600 shadow-md font-semibold"
+                : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
             }`}
             onClick={() => setActiveTab("send")}
           >
             <div className="flex items-center justify-center gap-2">
-              <ArrowUpCircle className="size-4" />
+              <ArrowUpCircle className="size-5" />
               Send
             </div>
           </button>
           <button
-            className={`flex-1 py-2 px-4 text-center rounded-r-lg transition-colors ${
+            className={`flex-1 py-3 px-4 text-center rounded-lg transition-all duration-200 ${
               activeTab === "receive"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200"
+                ? "bg-white text-indigo-600 shadow-md font-semibold"
+                : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
             }`}
             onClick={() => setActiveTab("receive")}
           >
             <div className="flex items-center justify-center gap-2">
-              <ArrowDownCircle className="size-4" />
+              <ArrowDownCircle className="size-5" />
               Receive
             </div>
           </button>
@@ -271,6 +271,7 @@ export function SendModal({ open, onClose, token }: SendModalProps) {
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
+                className="rounded-xl border-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 py-3 transition-colors duration-200 shadow-sm"
               />
             </div>
 
@@ -290,11 +291,12 @@ export function SendModal({ open, onClose, token }: SendModalProps) {
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.0"
                   disabled={loading}
+                  className="rounded-xl border-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 py-3 transition-colors duration-200 shadow-sm pr-12"
                 />
                 <button
                   type="button"
                   onClick={handleMax}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:underline disabled:opacity-50"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-50 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-lg transition-colors duration-200"
                   disabled={loading}
                 >
                   Max
@@ -306,7 +308,7 @@ export function SendModal({ open, onClose, token }: SendModalProps) {
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3 space-y-1 text-sm">
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-4 space-y-2 text-sm shadow-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Network Fee</span>
                 <span className="flex items-center gap-2">
@@ -352,7 +354,7 @@ export function SendModal({ open, onClose, token }: SendModalProps) {
               </p>
             </div>
             
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-5 shadow-sm">
               <code className="text-sm break-all font-mono">
                 {address || "0x0000000000000000000000000000000000000000"}
               </code>

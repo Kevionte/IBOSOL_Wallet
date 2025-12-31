@@ -1,32 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { useWallet } from '../contexts/WalletContext';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Copy, Send, QrCode, ExternalLink, Lock, Settings as SettingsIcon, Plus, ArrowUpRight, ArrowDownLeft, Wallet, TrendingUp, Activity, PieChart, RefreshCw } from 'lucide-react';
-import { toast } from 'sonner';
-import { SendModal } from './SendModal';
-import { ReceiveModal } from './ReceiveModal';
-import { SettingsModal } from './SettingsModal';
-import { AddTokenModal } from './AddTokenModal';
-import { AccountSwitcher } from './AccountSwitcher';
-import { NetworkSwitcher } from './NetworkSwitcher';
+import React, { useMemo, useState } from "react";
+import { useWallet } from "../contexts/WalletContext";
+import { Card } from "./ui/card";
+import { Button } from "./ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import {
+  Copy,
+  Send,
+  QrCode,
+  ExternalLink,
+  Lock,
+  Settings as SettingsIcon,
+  Plus,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Wallet,
+  TrendingUp,
+  Activity,
+  PieChart,
+  RefreshCw,
+} from "lucide-react";
+import { toast } from "sonner";
+import { SendModal } from "./SendModal";
+import { ReceiveModal } from "./ReceiveModal";
+import { SettingsModal } from "./SettingsModal";
+import { AddTokenModal } from "./AddTokenModal";
+import { AccountSwitcher } from "./AccountSwitcher";
+import { NetworkSwitcher } from "./NetworkSwitcher";
 
 export function Dashboard() {
   const wallet = useWallet();
-  const { address, balance, transactions, lockWallet, currentNetwork, tokens, currentAccount, refreshBalance } = wallet;
+  const { address, balance, transactions, lockWallet, currentNetwork, tokens, refreshBalance } = wallet;
+
   const [showSend, setShowSend] = useState(false);
   const [showReceive, setShowReceive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAddToken, setShowAddToken] = useState(false);
   const [selectedToken, setSelectedToken] = useState<any>(null);
-  const [tokenAction, setTokenAction] = useState<'send' | 'receive'>('send');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const copyAddress = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
-      toast.success('Address copied to clipboard');
+  const formatAddress = (addr: string) => `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
+
+  const formatDate = (timestamp: string) => {
+    const d = new Date(timestamp);
+    return (
+      d.toLocaleDateString(undefined, { month: "short", day: "2-digit" }) +
+      " " +
+      d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+    );
+  };
+
+  const copyAddress = async () => {
+    if (!address) return;
+    try {
+      await navigator.clipboard.writeText(address);
+      toast.success("Address copied");
+    } catch {
+      toast.error("Failed to copy");
     }
   };
 
@@ -34,382 +63,390 @@ export function Dashboard() {
     setIsRefreshing(true);
     try {
       await refreshBalance();
-      toast.success('Balance refreshed');
-    } catch (error) {
-      toast.error('Failed to refresh balance');
-      console.error('Refresh error:', error);
+      toast.success("Balance refreshed");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to refresh");
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  const formatAddress = (addr: string) => {
-    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-  };
-
-  const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  };
-
-  const handleTokenClick = (token: any, action: 'send' | 'receive' = 'send') => {
-    setSelectedToken({
-      ...token,
-      isNative: !token.address // Native token has no address
-    });
-    setTokenAction(action);
+  const openSendForToken = (token: any) => {
+    setSelectedToken({ ...token, isNative: !token.address });
     setShowSend(true);
   };
 
-  // Calculate portfolio value (mock calculation for demo)
-  const calculatePortfolioValue = () => {
-    const nativeTokenValue = parseFloat(balance || '0') * 100; // Mock price
-    const tokenValues = tokens.reduce((sum, token) => {
-      return sum + (parseFloat(token.balance || '0') * 50); // Mock price
-    }, 0);
-    return nativeTokenValue + tokenValues;
-  };
+  const portfolioValue = useMemo(() => {
+    const nativeValue = parseFloat(balance || "0") * 100; // mock price
+    const tokenValues = (tokens || []).reduce(
+      (sum: number, t: any) => sum + parseFloat(t.balance || "0") * 50,
+      0
+    );
+    return nativeValue + tokenValues;
+  }, [balance, tokens]);
 
-  const portfolioValue = calculatePortfolioValue();
-  const portfolioChange = 2.5; // Mock percentage change
+  const portfolioChange = 2.5;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Container with max width */}
-      <div className="max-w-5xl mx-auto p-4 space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between py-2">
-          <div className="flex items-center gap-3">
-            <div className="size-10 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Wallet className="size-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">IBOSOL Wallet</h1>
-              <p className="text-xs text-gray-600">Secure cryptocurrency management</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <NetworkSwitcher />
-            <Button variant="outline" size="sm" onClick={() => setShowSettings(true)} className="shadow-sm hover:shadow">
-              <SettingsIcon className="size-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={lockWallet} className="shadow-sm hover:shadow">
-              <Lock className="size-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Account Switcher */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4">
-          <AccountSwitcher />
-        </div>
-
-        {/* Portfolio Summary */}
-        <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 rounded-xl p-6 text-white shadow-xl border border-indigo-400/20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl shadow-xl border-0">
           <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="text-xs opacity-90 mb-1 flex items-center gap-2 font-medium">
-                  <PieChart className="size-4" />
-                  Total Portfolio Value
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-2xl">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+                  <Wallet className="size-6 text-white" />
                 </div>
-                <div className="text-3xl font-bold mb-1">${portfolioValue.toFixed(2)}</div>
-                <div className={`text-xs flex items-center gap-1 px-2 py-1 rounded-full inline-flex ${portfolioChange >= 0 ? 'bg-green-500/20 text-green-100' : 'bg-red-500/20 text-red-100'}`}>
-                  <TrendingUp className={`size-3 ${portfolioChange < 0 ? 'rotate-180' : ''}`} />
-                  {portfolioChange >= 0 ? '+' : ''}{portfolioChange}% (24h)
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">IBOSOL Wallet</h1>
+                  <p className="text-sm text-gray-600 font-medium">Simple. Secure. Fast.</p>
                 </div>
               </div>
-              <div className="text-right bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                <div className="text-xs opacity-90 mb-0.5 font-medium">Balance</div>
-                <div className="text-2xl font-bold mb-0.5">{balance}</div>
-                <div className="text-xs opacity-90">{currentNetwork.symbol}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 text-xs opacity-90 bg-white/10 rounded-lg px-3 py-2 border border-white/20">
-              <span className="font-mono font-medium">{formatAddress(address || '')}</span>
-              <button onClick={copyAddress} className="hover:opacity-80 transition-opacity ml-auto">
-                <Copy className="size-3" />
-              </button>
-              <button 
-                onClick={handleRefresh} 
-                disabled={isRefreshing}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <RefreshCw className={`size-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
 
-            <div className="flex gap-3">
-              <Button onClick={() => setShowSend(true)} className="flex-1 bg-white text-indigo-600 hover:bg-gray-50 shadow-lg font-semibold py-5 text-sm">
-                <Send className="size-4 mr-2" />
-                Send
-              </Button>
-              <Button onClick={() => setShowReceive(true)} className="flex-1 bg-white text-indigo-600 hover:bg-gray-50 shadow-lg font-semibold py-5 text-sm">
-                <QrCode className="size-4 mr-2" />
-                Receive
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="bg-white rounded-lg p-4 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="size-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-md">
-                <TrendingUp className="size-5 text-white" />
-              </div>
-              <div>
-                <div className="text-xs text-gray-600 font-medium">24h Change</div>
-                <div className="text-xl font-bold text-green-600">+2.5%</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg p-4 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="size-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-md">
-                <Activity className="size-5 text-white" />
-              </div>
-              <div>
-                <div className="text-xs text-gray-600 font-medium">Transactions</div>
-                <div className="text-xl font-bold text-blue-600">{transactions.length}</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg p-4 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="size-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
-                <Wallet className="size-5 text-white" />
-              </div>
-              <div>
-                <div className="text-xs text-gray-600 font-medium">Total Assets</div>
-                <div className="text-xl font-bold text-purple-600">{tokens.length + 1}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-          <Tabs defaultValue="tokens" className="w-full">
-            <TabsList className="w-full rounded-none border-b bg-gray-50 p-0 h-auto">
-              <TabsTrigger 
-                value="tokens" 
-                className="flex-1 py-3 data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:bg-white rounded-none font-semibold text-sm"
-              >
-                Assets
-              </TabsTrigger>
-              <TabsTrigger 
-                value="transactions" 
-                className="flex-1 py-3 data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:bg-white rounded-none font-semibold text-sm"
-              >
-                Activity
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="tokens" className="p-4 space-y-3 m-0">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-bold text-gray-900">My Assets</h3>
-                <Button size="sm" onClick={() => setShowAddToken(true)} className="shadow-sm">
-                  <Plus className="size-4 mr-1" />
-                  Add Token
+              <div className="flex items-center gap-3">
+                <NetworkSwitcher />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSettings(true)}
+                  className="h-9 w-9 p-0 rounded-xl bg-white border-2 border-gray-200 hover:bg-gray-100 shadow-sm hover:shadow-md transition-all duration-200"
+                  aria-label="Settings"
+                >
+                  <SettingsIcon className="size-4 text-gray-600" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={lockWallet}
+                  className="h-9 w-9 p-0 rounded-xl bg-white border-2 border-gray-200 hover:bg-gray-100 shadow-sm hover:shadow-md transition-all duration-200"
+                  aria-label="Lock"
+                >
+                  <Lock className="size-4 text-gray-600" />
                 </Button>
               </div>
+            </div>
 
-              {/* Native Token */}
-              <div 
-                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer group"
-                onClick={() => handleTokenClick({
-                  symbol: currentNetwork.symbol,
-                  name: currentNetwork.name,
-                  balance: balance,
-                  decimals: currentNetwork.decimals
-                })}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center border-2 border-white shadow">
-                    <span className="text-lg font-bold text-white">{currentNetwork.symbol[0]}</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{currentNetwork.symbol}</div>
-                    <div className="text-sm text-gray-500">{currentNetwork.name}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="font-semibold text-gray-900">{balance}</div>
-                    <div className="text-sm text-gray-500">{currentNetwork.symbol}</div>
-                  </div>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="h-9 w-9 p-0 rounded-full border-gray-300"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleTokenClick({
-                          symbol: currentNetwork.symbol,
-                          name: currentNetwork.name,
-                          balance: balance,
-                          decimals: currentNetwork.decimals
-                        }, 'send');
-                      }}
-                    >
-                      <ArrowUpRight className="size-4" />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="h-9 w-9 p-0 rounded-full border-gray-300"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleTokenClick({
-                          symbol: currentNetwork.symbol,
-                          name: currentNetwork.name,
-                          balance: balance,
-                          decimals: currentNetwork.decimals
-                        }, 'receive');
-                      }}
-                    >
-                      <ArrowDownLeft className="size-4" />
-                    </Button>
-                  </div>
-                </div>
+            {/* Account Switcher */}
+            <div className="mx-4 mt-1">
+              <div className="rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-100 p-1 shadow-inner">
+                <AccountSwitcher />
               </div>
+            </div>
 
-              {/* Custom Tokens */}
-              {tokens.map((token) => (
-                <div 
-                  key={token.address} 
-                  className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer group"
-                  onClick={() => handleTokenClick(token)}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="size-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center border-2 border-white shadow">
-                      <span className="text-lg font-bold text-white">{token.symbol[0]}</span>
+            {/* Balance Card */}
+            <div className="p-6 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 mx-4 rounded-2xl shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl shadow-sm">
+                      <PieChart className="size-5 text-indigo-600" />
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">{token.symbol}</div>
-                      <div className="text-sm text-gray-500">{token.name}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="font-semibold text-gray-900">{token.balance}</div>
-                      <div className="text-sm text-gray-500">{token.symbol}</div>
-                    </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-9 w-9 p-0 rounded-full border-gray-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTokenClick(token, 'send');
-                        }}
-                      >
-                        <ArrowUpRight className="size-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-9 w-9 p-0 rounded-full border-gray-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTokenClick(token, 'receive');
-                        }}
-                      >
-                        <ArrowDownLeft className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {tokens.length === 0 && (
-                <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-                  <div className="size-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Plus className="size-8 text-gray-400" />
-                  </div>
-                  <p className="font-medium mb-1">No custom tokens added yet</p>
-                  <p className="text-sm mb-4">Click "Add Token" to get started</p>
-                  <Button size="sm" onClick={() => setShowAddToken(true)}>
-                    Add Token
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="transactions" className="p-4 space-y-3">
-              {transactions.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-                  <div className="size-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Activity className="size-8 text-gray-400" />
-                  </div>
-                  <p className="font-medium mb-1">No transactions yet</p>
-                  <p className="text-sm">Your transaction history will appear here</p>
-                </div>
-              ) : (
-                transactions.map((tx, index) => {
-                  const isSent = tx.from?.hash?.toLowerCase() === address?.toLowerCase();
-                  const otherAddress = isSent ? tx.to?.hash : tx.from?.hash;
-                  const txValue = tx.value ? parseInt(tx.value) : 0;
-                  
-                  return (
-                    <div key={tx.hash || index} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 transition-colors">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            tx.result === 'success' 
-                              ? 'bg-green-100 text-green-700' 
-                              : tx.result === 'failed'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {tx.result || 'pending'}
-                          </span>
-                          <span className="text-sm text-gray-500">{formatDate(tx.timestamp)}</span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {isSent ? 'Sent to' : 'Received from'} {otherAddress ? formatAddress(otherAddress) : 'Unknown'}
-                        </div>
+                      <h2 className="text-sm text-gray-600 font-semibold">Total Balance</h2>
+                      <div className="text-3xl font-bold tracking-tight mt-1 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        {balance}{' '}
+                        <span className="text-gray-600 text-lg font-bold">{currentNetwork.symbol}</span>
                       </div>
-                      <div className="text-right">
-                        <div className={`font-semibold ${isSent ? 'text-red-600' : 'text-green-600'}`}>
-                          {isSent ? '-' : '+'}{(txValue / Math.pow(10, currentNetwork.decimals)).toFixed(4)} {currentNetwork.symbol}
-                        </div>
-                        <a
-                          href={`${currentNetwork.explorerUrl}/tx/${tx.hash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline inline-flex items-center gap-1 mt-1"
+                    </div>
+                  </div>
+            
+                  <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-100 px-4 py-1.5 text-sm font-bold text-gray-800 shadow-sm">
+                    <TrendingUp className={`size-3 ${portfolioChange < 0 ? "rotate-180 text-red-500" : "text-green-500"}`} />
+                    <span className={portfolioChange < 0 ? "text-red-600" : "text-green-600"}>
+                      {portfolioChange >= 0 ? "+" : ""}
+                      {portfolioChange}% (24h)
+                    </span>
+                  </div>
+            
+                  <div className="mt-3 text-sm text-gray-600 font-medium">
+                    Portfolio Value: <span className="font-bold text-gray-800">${portfolioValue.toFixed(2)}</span>
+                  </div>
+                </div>
+            
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="h-9 rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-100 text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <RefreshCw className={`size-3 mr-1 ${isRefreshing ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+              </div>
+            
+              {/* Address */}
+              <div className="mt-4 flex items-center gap-2 rounded-xl border-2 border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 shadow-sm">
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs text-gray-500 uppercase tracking-wide font-medium">Wallet Address</div>
+                  <div className="font-mono text-xs font-semibold truncate mt-0.5">
+                    {address ? formatAddress(address) : "—"}
+                  </div>
+                </div>
+            
+                <button
+                  onClick={copyAddress}
+                  className="rounded-lg border-2 border-gray-300 bg-white p-2 hover:bg-gray-100 shadow-sm transition-all duration-200 hover:shadow-md"
+                  aria-label="Copy address"
+                >
+                  <Copy className="size-3.5 text-gray-600" />
+                </button>
+              </div>
+            
+              {/* Actions */}
+              <div className="mt-5 grid grid-cols-2 gap-4">
+                <Button
+                  onClick={() =>
+                    openSendForToken({
+                      symbol: currentNetwork.symbol,
+                      name: currentNetwork.name,
+                      balance,
+                      decimals: currentNetwork.decimals,
+                    })
+                  }
+                  className="h-11 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 font-medium text-sm shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  <Send className="size-4 mr-1.5" />
+                  Send
+                </Button>
+            
+                <Button
+                  onClick={() => setShowReceive(true)}
+                  variant="outline"
+                  className="h-11 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-medium text-sm shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <QrCode className="size-4 mr-1.5" />
+                  Receive
+                </Button>
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-b from-white to-gray-50 mx-4 mb-4 shadow-sm">
+              <Tabs defaultValue="tokens" className="w-full">
+                <div className="p-3 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-2xl">
+                  <TabsList className="w-full rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 p-1.5 shadow-inner">
+                    <TabsTrigger
+                      value="tokens"
+                      className="flex-1 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-md py-2.5 transition-all duration-200"
+                    >
+                      Assets
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="transactions"
+                      className="flex-1 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-md py-2.5 transition-all duration-200"
+                    >
+                      Activity
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                {/* Assets */}
+                <TabsContent value="tokens" className="m-0 p-4 space-y-3">
+                  <div className="flex items-center justify-between py-1">
+                    <div>
+                      <h2 className="text-base font-semibold text-gray-900">My Assets</h2>
+                      <p className="text-xs text-gray-500 mt-0.5">Quick send and receive per token</p>
+                    </div>
+
+                    <Button size="sm" onClick={() => setShowAddToken(true)} className="h-8 rounded px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs">
+                      <Plus className="size-3.5 mr-1" />
+                      Add Token
+                    </Button>
+                  </div>
+
+                  <AssetRow
+                    symbol={currentNetwork.symbol}
+                    name={currentNetwork.name}
+                    balance={balance}
+                    onSend={() =>
+                      openSendForToken({
+                        symbol: currentNetwork.symbol,
+                        name: currentNetwork.name,
+                        balance,
+                        decimals: currentNetwork.decimals,
+                      })
+                    }
+                    onReceive={() => setShowReceive(true)}
+                  />
+
+                  {(tokens || []).map((t: any) => (
+                    <AssetRow
+                      key={t.address}
+                      symbol={t.symbol}
+                      name={t.name}
+                      balance={t.balance}
+                      onSend={() => openSendForToken(t)}
+                      onReceive={() => setShowReceive(true)}
+                    />
+                  ))}
+
+                  {(tokens || []).length === 0 && (
+                    <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-white to-gray-50 p-8 text-center shadow-sm">
+                      <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-xl bg-gray-100 shadow-sm">
+                        <Plus className="size-6 text-gray-400" />
+                      </div>
+                      <div className="font-bold text-gray-900 text-lg mb-1">No Tokens Found</div>
+                      <div className="mt-1 text-sm text-gray-600 mb-4">Add a token contract address to track it.</div>
+                      <Button 
+                        onClick={() => setShowAddToken(true)} 
+                        className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200"
+                      >
+                        Add Token
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Activity */}
+                <TabsContent value="transactions" className="m-0 p-4 space-y-3">
+                  {transactions.length === 0 ? (
+                    <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-white to-gray-50 p-8 text-center shadow-sm">
+                      <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-xl bg-gray-100 shadow-sm">
+                        <Activity className="size-6 text-gray-400" />
+                      </div>
+                      <div className="font-bold text-gray-900 text-lg mb-1">No Transactions</div>
+                      <div className="mt-1 text-sm text-gray-600">Your recent activity will appear here.</div>
+                    </div>
+                  ) : (
+                    transactions.map((tx: any, index: number) => {
+                      const isSent = tx.from?.hash?.toLowerCase() === address?.toLowerCase();
+                      const other = isSent ? tx.to?.hash : tx.from?.hash;
+                      const raw = tx.value ? parseInt(tx.value) : 0;
+                      const amount = (raw / Math.pow(10, currentNetwork.decimals)).toFixed(4);
+                
+                      return (
+                        <div
+                          key={tx.hash || index}
+                          className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm hover:shadow-md transition-all duration-200"
                         >
-                          View <ExternalLink className="size-3" />
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </TabsContent>
-          </Tabs>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium ${tx.result === "success" ? "bg-emerald-100 text-emerald-700" : tx.result === "failed" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}
+                                >
+                                  {tx.result || "pending"}
+                                </span>
+                                <span className="text-xs text-gray-500">{formatDate(tx.timestamp)}</span>
+                              </div>
+                
+                              <div className="text-sm text-gray-700">
+                                {isSent ? "Sent to" : "Received from"}{' '}
+                                <span className="font-mono text-gray-900 font-medium">
+                                  {other ? formatAddress(other) : "Unknown"}
+                                </span>
+                              </div>
+                            </div>
+                
+                            <div className="text-right min-w-[100px]">
+                              <div className={`text-base font-semibold ${isSent ? "text-rose-600" : "text-emerald-600"}`}>
+                                {isSent ? "-" : "+"}
+                                {amount} <span className="text-gray-500 font-medium">{currentNetwork.symbol}</span>
+                              </div>
+                
+                              {tx.hash ? (
+                                <a
+                                  href={`${currentNetwork.explorerUrl}/tx/${tx.hash}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline"
+                                >
+                                  View <ExternalLink className="size-3" />
+                                </a>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+
+          <SendModal
+            open={showSend}
+            onClose={() => {
+              setShowSend(false);
+              setSelectedToken(null);
+            }}
+            token={selectedToken}
+          />
+          <ReceiveModal open={showReceive} onClose={() => setShowReceive(false)} />
+          <SettingsModal open={showSettings} onClose={() => setShowSettings(false)} />
+          <AddTokenModal open={showAddToken} onClose={() => setShowAddToken(false)} />
         </div>
       </div>
+    </div>
+  );
+}
 
-      <SendModal 
-        open={showSend} 
-        onClose={() => {
-          setShowSend(false);
-          setSelectedToken(null);
-        }} 
-        token={selectedToken}
-      />
-      <ReceiveModal open={showReceive} onClose={() => setShowReceive(false)} />
-      <SettingsModal open={showSettings} onClose={() => setShowSettings(false)} />
-      <AddTokenModal open={showAddToken} onClose={() => setShowAddToken(false)} />
+function AssetRow({
+  symbol,
+  name,
+  balance,
+  onSend,
+  onReceive,
+}: {
+  symbol: string;
+  name: string;
+  balance: string;
+  onSend: () => void;
+  onReceive: () => void;
+}) {
+  return (
+    <div className="group rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm hover:shadow-md transition-all duration-200">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="size-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-sm">
+            <span className="text-white font-bold text-base">{symbol?.[0] || "?"}</span>
+          </div>
+
+          <div className="min-w-0">
+            <div className="truncate text-lg font-bold text-gray-900">{symbol}</div>
+            <div className="truncate text-sm text-gray-600 mt-1">{name}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right min-w-[100px]">
+            <div className="text-lg font-bold text-gray-900">{balance}</div>
+            <div className="text-sm text-gray-600 font-medium">{symbol}</div>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-lg border-2 border-gray-200 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 shadow-sm hover:shadow-md transition-all duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSend();
+              }}
+              aria-label="Send"
+            >
+              <ArrowUpRight className="size-4" />
+            </Button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 w-9 p-0 rounded-lg border-2 border-gray-200 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 shadow-sm hover:shadow-md transition-all duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReceive();
+              }}
+              aria-label="Receive"
+            >
+              <ArrowDownLeft className="size-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

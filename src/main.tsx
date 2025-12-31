@@ -5,5 +5,4 @@ import { Buffer } from "buffer";
 
 (window as any).Buffer = Buffer;
 
-  createRoot(document.getElementById("root")!).render(<App />);
-  
+createRoot(document.getElementById("root")!).render(<App />);

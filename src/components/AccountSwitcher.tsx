@@ -161,15 +161,15 @@ export function AccountSwitcher() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-full justify-between bg-white hover:bg-gray-50 border-gray-300 shadow-sm">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="size-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-white shadow">
-                <span className="text-sm font-bold text-white">
+          <Button variant="outline" className="w-full justify-between bg-gradient-to-r from-white to-gray-50 hover:from-gray-50 hover:to-gray-100 border-2 border-gray-200 rounded-xl h-12 px-3 shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <div className="size-7 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="text-xs font-bold text-white">
                   {currentAccount?.name?.[0] || "A"}
                 </span>
               </div>
               <div className="text-left overflow-hidden">
-                <div className="text-sm font-semibold text-gray-900 truncate">
+                <div className="text-sm font-medium text-gray-900 truncate">
                   {currentAccount?.name || "Account"}
                 </div>
                 <div className="text-xs text-gray-500 truncate">
@@ -177,29 +177,29 @@ export function AccountSwitcher() {
                 </div>
               </div>
             </div>
-            <ChevronDown className="size-4 ml-2 flex-shrink-0 text-gray-500" />
+            <ChevronDown className="size-4 ml-1 flex-shrink-0 text-gray-600" />
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-80 mt-2 shadow-lg rounded-xl border-gray-200" align="start">
-          <DropdownMenuLabel className="flex items-center gap-2 py-2">
+        <DropdownMenuContent className="w-72 mt-2 rounded-2xl border-0 shadow-2xl bg-gradient-to-b from-white to-gray-50" align="start">
+          <DropdownMenuLabel className="flex items-center gap-2 py-3 px-4 text-sm border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-2xl">
             <Wallet className="size-4 text-indigo-600" />
-            <span className="font-semibold text-gray-900">My Accounts</span>
+            <span className="font-medium text-gray-800">My Accounts</span>
           </DropdownMenuLabel>
 
-          <DropdownMenuGroup className="max-h-60 overflow-y-auto">
+          <DropdownMenuGroup className="max-h-52 overflow-y-auto">
             {accounts.map((account: any) => (
               <DropdownMenuItem
                 key={account.id}
-                className="flex items-center justify-between cursor-pointer py-3 px-2 hover:bg-gray-50 rounded-lg mx-1"
+                className="flex items-center justify-between cursor-pointer py-3 px-4 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 rounded-xl mx-2 my-1 transition-all duration-200 border border-transparent hover:border-indigo-100"
                 onSelect={(e) => e.preventDefault()}
               >
                 <div
                   className="flex items-center gap-3 flex-1 min-w-0"
                   onClick={() => switchAccount(account.id)}
                 >
-                  <div className="size-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-500 border-2 shadow">
-                    <span className="text-sm font-bold">
+                  <div className="size-8 rounded flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-indigo-600 to-purple-600 shadow-sm">
+                    <span className="text-sm font-bold text-white">
                       {account.name?.[0] || "A"}
                     </span>
                   </div>
@@ -207,39 +207,39 @@ export function AccountSwitcher() {
                     <div className="text-sm font-medium text-gray-900 truncate">
                       {account.name}
                     </div>
-                    <div className="text-xs text-gray-500 truncate">
+                    <div className="text-xs text-gray-500 truncate mt-0.5">
                       {formatAddress(account.address)}
                     </div>
                   </div>
                   {currentAccount?.id === account.id && (
-                    <Check className="size-5 text-indigo-600 flex-shrink-0" />
+                    <Check className="size-4 text-indigo-600 flex-shrink-0" />
                   )}
                 </div>
 
-                <div className="flex gap-1 ml-2">
+                <div className="flex gap-1 ml-1">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full"
+                    className="h-8 w-8 p-0 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRename(account.id, account.name);
                     }}
                   >
-                    <Edit2 className="size-3.5" />
+                    <Edit2 className="size-4" />
                   </Button>
 
                   {accounts.length > 1 && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full"
+                      className="h-8 w-8 p-0 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemove(account.id, account.name);
                       }}
                     >
-                      <Trash2 className="size-3.5" />
+                      <Trash2 className="size-4" />
                     </Button>
                   )}
                 </div>
@@ -247,17 +247,19 @@ export function AccountSwitcher() {
             ))}
           </DropdownMenuGroup>
 
-          <DropdownMenuSeparator className="my-1" />
+          <DropdownMenuSeparator className="my-2 bg-gradient-to-r from-gray-200 to-gray-300" />
 
           <DropdownMenuItem
             onClick={() => {
               setAddAccountMethod("create");
               setShowAddAccount(true);
             }}
-            className="py-2 cursor-pointer hover:bg-gray-50 rounded-lg mx-1"
+            className="py-3 cursor-pointer hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 rounded-xl mx-2 mb-1 transition-all duration-200 flex items-center border border-transparent hover:border-green-200 shadow-sm hover:shadow-md"
           >
-            <Plus className="size-4 mr-2 text-indigo-600" />
-            <span>Create Account</span>
+            <div className="size-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mr-3 shadow-sm">
+              <Plus className="size-4 text-white" />
+            </div>
+            <span className="font-medium text-gray-800">Create Account</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -265,10 +267,12 @@ export function AccountSwitcher() {
               setAddAccountMethod("import");
               setShowAddAccount(true);
             }}
-            className="py-2 cursor-pointer hover:bg-gray-50 rounded-lg mx-1"
+            className="py-3 cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl mx-2 transition-all duration-200 flex items-center border border-transparent hover:border-blue-200 shadow-sm hover:shadow-md"
           >
-            <Key className="size-4 mr-2 text-indigo-600" />
-            <span>Import Account</span>
+            <div className="size-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 shadow-sm">
+              <Key className="size-4 text-white" />
+            </div>
+            <span className="font-medium text-gray-800">Import Account</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -285,12 +289,12 @@ export function AccountSwitcher() {
           if (!open) resetAddAccountForm();
         }}
       >
-        <DialogContent className="sm:max-w-md rounded-xl">
+        <DialogContent className="sm:max-w-lg rounded-2xl shadow-2xl border-0 bg-gradient-to-b from-white to-gray-50">
           <DialogHeader>
-            <DialogTitle className="text-xl">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               {addAccountMethod === "create" ? "Create Account" : "Import Account"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600">
               {addAccountMethod === "create"
                 ? "Create a new account with a securely generated recovery phrase."
                 : "Import an existing account using a recovery phrase or private key."}
@@ -305,7 +309,7 @@ export function AccountSwitcher() {
                 value={newAccountName}
                 onChange={(e) => setNewAccountName(e.target.value)}
                 placeholder={`Account ${accounts.length + 1}`}
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
               />
             </div>
 
@@ -318,7 +322,7 @@ export function AccountSwitcher() {
                     value={recoveryPhrase}
                     onChange={(e) => setRecoveryPhrase(e.target.value)}
                     placeholder="Enter your 12-word recovery phrase"
-                    className="w-full min-h-[80px] px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full min-h-[80px] px-4 py-3 border-2 border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
                     spellCheck={false}
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -327,7 +331,7 @@ export function AccountSwitcher() {
 
                 <div className="relative flex items-center">
                   <div className="flex-grow border-t border-gray-300" />
-                  <span className="flex-shrink mx-4 text-gray-500 text-sm">OR</span>
+                  <span className="flex-shrink mx-4 text-gray-500 text-sm font-medium bg-white px-2">OR</span>
                   <div className="flex-grow border-t border-gray-300" />
                 </div>
 
@@ -339,7 +343,7 @@ export function AccountSwitcher() {
                     value={privateKey}
                     onChange={(e) => setPrivateKey(e.target.value)}
                     placeholder="Enter your private key"
-                    className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
                     autoCapitalize="none"
                     autoCorrect="off"
                   />
@@ -355,12 +359,12 @@ export function AccountSwitcher() {
                 value={newAccountPassword}
                 onChange={(e) => setNewAccountPassword(e.target.value)}
                 placeholder="Enter your wallet password"
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
               />
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button onClick={handleAddAccount} className="flex-1">
+              <Button onClick={handleAddAccount} className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl h-11 shadow-md hover:shadow-lg transition-all duration-200">
                 {addAccountMethod === "create" ? "Create Account" : "Import Account"}
               </Button>
 
@@ -370,7 +374,7 @@ export function AccountSwitcher() {
                   setShowAddAccount(false);
                   resetAddAccountForm();
                 }}
-                className="flex-1"
+                className="flex-1 rounded-xl h-11 shadow-sm hover:shadow-md transition-all duration-200 border-2"
               >
                 Cancel
               </Button>
@@ -381,10 +385,12 @@ export function AccountSwitcher() {
 
       {/* Rename Account Dialog */}
       <Dialog open={showRename} onOpenChange={setShowRename}>
-        <DialogContent className="sm:max-w-md rounded-xl">
+        <DialogContent className="sm:max-w-lg rounded-2xl shadow-2xl border-0 bg-gradient-to-b from-white to-gray-50">
           <DialogHeader>
-            <DialogTitle>Rename Account</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Rename Account
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
               Enter a new name for your account
             </DialogDescription>
           </DialogHeader>
@@ -397,20 +403,20 @@ export function AccountSwitcher() {
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
                 placeholder="Enter account name"
-                className="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                className="rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm h-11"
                 onKeyDown={(e) => e.key === "Enter" && confirmRename()}
               />
             </div>
             
             <div className="flex gap-3 pt-2">
-              <Button onClick={confirmRename} className="flex-1">
+              <Button onClick={confirmRename} className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl h-11 shadow-md hover:shadow-lg transition-all duration-200">
                 Save Changes
               </Button>
-              
+            
               <Button
                 variant="outline"
                 onClick={() => setShowRename(false)}
-                className="flex-1"
+                className="flex-1 rounded-xl h-11 shadow-sm hover:shadow-md transition-all duration-200 border-2"
               >
                 Cancel
               </Button>
@@ -421,16 +427,18 @@ export function AccountSwitcher() {
 
       {/* Remove Account Confirmation */}
       <Dialog open={showRemoveConfirm} onOpenChange={setShowRemoveConfirm}>
-        <DialogContent className="sm:max-w-md rounded-xl">
+        <DialogContent className="sm:max-w-lg rounded-2xl shadow-2xl border-0 bg-gradient-to-b from-white to-gray-50">
           <DialogHeader>
-            <DialogTitle>Remove Account</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+              Remove Account
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
               Are you sure you want to remove this account? This action cannot be undone.
               Make sure you have backed up your recovery phrase or private key.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+      
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-xl p-4 mb-4 shadow-sm">
             <div className="font-medium text-red-800">
               {accountToRemove?.name}
             </div>
@@ -442,15 +450,15 @@ export function AccountSwitcher() {
           <div className="flex gap-3">
             <Button 
               onClick={confirmRemove} 
-              className="flex-1 bg-red-600 hover:bg-red-700"
+              className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white rounded-xl h-11 shadow-md hover:shadow-lg transition-all duration-200"
             >
               Remove Account
             </Button>
-            
+          
             <Button
               variant="outline"
               onClick={() => setShowRemoveConfirm(false)}
-              className="flex-1"
+              className="flex-1 rounded-xl h-11 shadow-sm hover:shadow-md transition-all duration-200 border-2"
             >
               Cancel
             </Button>
